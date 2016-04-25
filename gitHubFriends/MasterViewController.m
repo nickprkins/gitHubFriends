@@ -12,6 +12,9 @@
 @interface MasterViewController ()
 
 @property NSMutableArray *objects;
+
+-(IBAction)GoToNewItemViewController:(id)sender;
+
 @end
 
 @implementation MasterViewController
@@ -20,8 +23,10 @@
     [super viewDidLoad];
     // Do any additional setup after loading the view, typically from a nib.
     self.navigationItem.leftBarButtonItem = self.editButtonItem;
+    
+    self.objects = [[NSMutableArray alloc] init];
 
-    UIBarButtonItem *addButton = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAdd target:self action:@selector(insertNewObject:)];
+    UIBarButtonItem *addButton = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAdd target:self action:@selector(GoToNewItemViewController:)];
     self.navigationItem.rightBarButtonItem = addButton;
     self.detailViewController = (DetailViewController *)[[self.splitViewController.viewControllers lastObject] topViewController];
 }
@@ -56,6 +61,41 @@
         controller.navigationItem.leftBarButtonItem = self.splitViewController.displayModeButtonItem;
         controller.navigationItem.leftItemsSupplementBackButton = YES;
     }
+}
+-(IBAction)GoToNewItemViewController:(id)sender{
+    
+    UIAlertController * alertController =
+    [UIAlertController alertControllerWithTitle:@"Add A Friend"
+                                        message:@"Enter a valid github username"
+                                 preferredStyle:UIAlertControllerStyleAlert];
+    
+    [alertController addTextFieldWithConfigurationHandler:^(UITextField * _Nonnull textField) {
+        textField.placeholder = @"UserName";
+    }];
+    
+    UIAlertAction * cancelAction = [UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:^(UIAlertAction * _Nonnull action) {
+        NSLog(@"User Cancelled");
+    }];
+    
+    // Add a button with red text is what I think destructive style does.
+//    UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleDestructive handler:^(UIAlertAction * _Nonnull action) {
+//        NSLog(@"User Cancelled");
+//    }];
+    
+    UIAlertAction * okAlert = [UIAlertAction actionWithTitle:@"OK" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+        UITextField * textField = alertController.textFields.lastObject;
+        NSLog(@"%@", textField.text);
+        [_objects addObject:textField.text];
+        
+        NSIndexPath *indexPath = [NSIndexPath indexPathForRow:[_objects count]-1 inSection:0];
+        [self.tableView insertRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationFade];
+        
+    }];
+    
+    [alertController addAction:okAlert];
+    
+    [self presentViewController:alertController animated:YES completion:nil];
+    [alertController addAction:cancelAction];
 }
 
 #pragma mark - Table View
