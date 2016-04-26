@@ -7,12 +7,13 @@
 //
 
 #import "DetailViewController.h"
-#import "Friend.h"
+#import "RepoTableViewCell.h"
 
-@interface DetailViewController () <NSURLSessionDelegate>
+@interface DetailViewController () <NSURLSessionDelegate, UITableViewDataSource>
 
 @property NSMutableData * receivedData;
 @property NSMutableArray * repoArray;
+@property UITableView *tableView;
 
 @end
 
@@ -52,7 +53,19 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view, typically from a nib.
-    [self configureView];
+    //[self configureView];
+    
+    //NEED to initialize the array.
+    self.repoArray = [[NSMutableArray alloc]init];
+    
+    self.tableView = [[UITableView alloc] init];
+    
+    self.tableView = [[UITableView alloc] initWithFrame:self.view.frame style:UITableViewStyleGrouped];
+    
+    self.tableView.dataSource = self;
+    [self.tableView registerClass:[RepoTableViewCell class] forCellReuseIdentifier:@"repoCell"];
+    [self.view addSubview:self.tableView];
+    
 }
 
 - (void)didReceiveMemoryWarning {
@@ -83,11 +96,38 @@
 -(void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task didCompleteWithError:(nullable NSError *)error{
     if (!error){
         //NSLog(@"Download Successful! %@", [self.receivedData description]);
+        // NEED to be stored in Array not dictionary
+        NSArray *jsonResponse = [NSJSONSerialization JSONObjectWithData:self.receivedData options:NSJSONReadingMutableContainers error:nil];
+
+        self.repoArray = [jsonResponse mutableCopy];
         
-        NSDictionary *jsonResponse = [NSJSONSerialization JSONObjectWithData:self.receivedData options:NSJSONReadingMutableContainers error:nil];
+        if(self.repoArray){
+            //Clean out so this will be called again if data is retrieved again.
+            self.receivedData = nil;
+            [self.tableView reloadData];
+        }
         
-        NSLog(@"%@", [jsonResponse description]);
+        NSLog(@"%@", [self.repoArray description]);
+        
+        
         }
     }
+
+#pragma mark UITableViewDataSource
+
+-(NSInteger) numberOfSectionsInTableView:(UITableView *)tableView{
+    return 1;
+}
+
+-(NSInteger) tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
+    return self.repoArray.count;
+}
+
+-(UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
+    UITableViewCell * cell = [tableView dequeueReusableCellWithIdentifier:@"repoCell" forIndexPath:indexPath];
+    
+    cell.textLabel.text = self.repoArray[indexPath.row][@"name"];
+    return cell;
+}
 
 @end
