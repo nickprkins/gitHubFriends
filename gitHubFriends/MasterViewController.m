@@ -8,6 +8,7 @@
 
 #import "MasterViewController.h"
 #import "DetailViewController.h"
+#import "Friend.h"
 
 @interface MasterViewController ()
 
@@ -21,6 +22,9 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
+    
+    self.navigationController.title = @"GitHub Friends";
+    self.navigationItem.title = @"GitHub Friends";
     // Do any additional setup after loading the view, typically from a nib.
     self.navigationItem.leftBarButtonItem = self.editButtonItem;
     
@@ -77,19 +81,17 @@
         NSLog(@"User Cancelled");
     }];
     
-    // Add a button with red text is what I think destructive style does.
+    // Add a button with red text is what destructive style does.
 //    UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleDestructive handler:^(UIAlertAction * _Nonnull action) {
 //        NSLog(@"User Cancelled");
 //    }];
     
     UIAlertAction * okAlert = [UIAlertAction actionWithTitle:@"OK" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
         UITextField * textField = alertController.textFields.lastObject;
-        NSLog(@"%@", textField.text);
         [_objects addObject:textField.text];
         
         NSIndexPath *indexPath = [NSIndexPath indexPathForRow:[_objects count]-1 inSection:0];
         [self.tableView insertRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationFade];
-        
     }];
     
     [alertController addAction:okAlert];

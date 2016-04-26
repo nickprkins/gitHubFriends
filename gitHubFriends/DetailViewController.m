@@ -7,10 +7,12 @@
 //
 
 #import "DetailViewController.h"
+#import "Friend.h"
 
 @interface DetailViewController () <NSURLSessionDelegate>
 
 @property NSMutableData * receivedData;
+@property NSMutableArray * repoArray;
 
 @end
 
@@ -29,10 +31,11 @@
 
 - (void)configureView {
     // Update the user interface for the detail item.
+    
     if (self.detailItem) {
         self.detailDescriptionLabel.text = [self.detailItem description];
         NSString *userName = [self.detailItem description];
-        NSString * urlString = [NSString stringWithFormat:@"https://api.github.com/users/%@", userName];
+        NSString * urlString = [NSString stringWithFormat:@"https://api.github.com/users/%@/repos", userName];
         NSURL * url = [NSURL URLWithString:urlString];
         
         NSURLSessionConfiguration * config = [NSURLSessionConfiguration defaultSessionConfiguration];
@@ -42,6 +45,7 @@
         NSURLSessionDataTask * dataTask = [session dataTaskWithURL:url];
         // you can pause or stop a dataTask specifically.  if they leave page, download stops or something.
         [dataTask resume];
+        self.navigationItem.title = [NSString stringWithFormat:@"%@ Public Respositories", userName];
     }
 }
 
@@ -83,8 +87,7 @@
         NSDictionary *jsonResponse = [NSJSONSerialization JSONObjectWithData:self.receivedData options:NSJSONReadingMutableContainers error:nil];
         
         NSLog(@"%@", [jsonResponse description]);
-        
+        }
     }
-}
 
 @end
